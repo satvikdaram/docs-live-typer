@@ -788,13 +788,14 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 .view-humanizer {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  overflow: hidden;
+  gap: 12px;
+  overflow-y: auto;
 }
 
+/* Fills exactly the visible height of the tab, which pushes the site just below the fold. */
 .humanize-card {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: none;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -834,39 +835,21 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   background: var(--grad-card) padding-box, var(--grad-edge) border-box;
   border: 1px solid transparent;
   border-radius: var(--radius);
+  scroll-margin-top: 12px;
 }
 
 .site-summary {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border-radius: var(--radius);
+  padding: 10px 12px 6px;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-2);
-  cursor: pointer;
-  list-style: none;
-}
-
-.site-summary:hover {
-  background: var(--surface-2);
-}
-
-.site-summary::-webkit-details-marker {
-  display: none;
 }
 
 .site-summary > span:first-child {
   margin-right: auto;
-}
-
-.site-summary > span:first-child::before {
-  content: "Show ";
-}
-
-.site-details[open] .site-summary > span:first-child::before {
-  content: "Hide ";
 }
 
 .site-state {
@@ -892,8 +875,8 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 
 .frame-wrap {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 140px;
+  flex: none;
+  height: 560px;
   overflow: hidden;
   background: var(--surface-1);
   border: 1px solid var(--hairline);
@@ -907,30 +890,6 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   height: 100%;
   border: 0;
   background: var(--surface-1);
-}
-
-/* Closed: the site keeps running but takes no space. Open: it shares the height. */
-.site-details:not([open]) + .frame-wrap {
-  flex: 0 0 0;
-  min-height: 0;
-  height: 0;
-  border: 0;
-  visibility: hidden;
-}
-
-.site-details[open] + .frame-wrap {
-  flex: 1 1 auto;
-  min-height: 120px;
-}
-
-.view-humanizer:has(.site-details[open]) .humanize-card {
-  flex: 0 0 auto;
-}
-
-.view-humanizer:has(.site-details[open]) .humanize-text {
-  flex: none;
-  height: 88px;
-  min-height: 88px;
 }
 
 .frame-loading {

@@ -16,7 +16,9 @@ Everything Docs Live Typer can do, one feature at a time. New here? Start with [
 1. Open a Google Doc in edit mode (the address ends in `/edit`). [docs.new](https://docs.new) makes a blank one.
 2. Click the extension icon. The side panel opens on the right.
 3. Go to the **Typer** tab and paste your text.
-4. Press **Start**, then click into the doc where you want the text during the countdown.
+4. Click in the doc where you want the text, then press **Start**. Typing begins right away.
+
+Want a moment to click into the doc after pressing Start? Turn on a countdown under **Settings → Start**.
 
 Text goes wherever the doc's cursor is. Line breaks in your text become real paragraphs.
 
@@ -30,7 +32,7 @@ The status dot at the top tells you where things stand:
 |---|---|
 | **Ready** | The current tab is a Google Doc. You can start. |
 | **Not a Google Doc** | Switch to a doc tab first. |
-| **Starting in 3** | Countdown. Click into the doc now. |
+| **Starting in 3** | Only if you turned on a countdown. Click into the doc now. |
 | **Typing** / **Paused** | A run is going. |
 
 ## Speed and settings
@@ -47,7 +49,7 @@ Everything else is under **Settings**, grouped:
 | Behavior | Typing bursts | A few quick words, then a short pause |
 | | Fatigue | Slows down a little over long text |
 | | Typos | Hits a nearby key now and then, then backspaces and fixes it |
-| Start | Countdown | 0–10 seconds before typing starts |
+| Start | Countdown | Off by default. 1–10 seconds to click into the doc after pressing Start |
 
 **Reset to defaults** puts everything back. Settings are saved automatically.
 
@@ -93,7 +95,7 @@ The panel's first tab is a text box with a **Humanize** button:
 1. Paste your text into the box.
 2. Press **Humanize**.
 
-The extension puts your text into [humanizeai.pro](https://www.humanizeai.pro/), shown at the bottom of the panel, and presses the site's own *Humanize AI* button. When the result is ready it goes to the Typer. With **Start typing automatically** on, typing starts right away. Each press handles one block of text.
+The extension puts your text into [humanizeai.pro](https://www.humanizeai.pro/), which stays loaded just below the bottom of the panel, and presses the site's own *Humanize AI* button. When the result is ready it goes to the Typer. With **Start typing automatically** on, typing starts right away. Each press handles one block of text.
 
 | Control | What it does |
 |---|---|
@@ -101,9 +103,9 @@ The extension puts your text into [humanizeai.pro](https://www.humanizeai.pro/),
 | **Add as cell** | Adds the box's text, as it is, as the next table cell. You stay on this tab |
 | **Send to Typer** | Replaces the Typer's text with the box's text, as it is |
 | **Start typing automatically** | When on, text sent to the Typer starts typing |
-| **Hide / Show humanizeai.pro** | The site is shown at the bottom by default, so it runs at full speed. Hide it for a bigger text box (it may humanize slower while hidden) |
+| **Site ↓** | Scrolls down to humanizeai.pro, which sits just below the visible area. Scroll back up to return |
 
-**First time:** answer the site's cookie popup once at the bottom of the panel. If you've hidden the site and something goes wrong, the panel shows it again so you can see what the site says.
+**First time:** click **Site ↓** and answer the site's cookie popup once. If something goes wrong, the panel scrolls down to the site for you so you can see what it says.
 
 **Window** opens the site in its own small window, for example to sign in. The **Humanize** button only works with the copy inside the panel.
 

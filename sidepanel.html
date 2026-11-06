@@ -29,16 +29,21 @@
           <button type="button" id="send-append" class="btn btn-secondary btn-sm" title="Add this text as the next table cell">Add as cell</button>
           <button type="button" id="send-btn" class="btn btn-secondary btn-sm" title="Send this text to the Typer as it is">Send to Typer</button>
         </div>
-        <label class="inline-toggle auto-row" title="When the humanized text arrives in the Typer, start typing">
-          <input type="checkbox" role="switch" class="switch" id="auto-start"> Start typing automatically
-        </label>
+        <div class="row-between auto-row">
+          <label class="inline-toggle" title="When the humanized text arrives in the Typer, start typing">
+            <input type="checkbox" role="switch" class="switch" id="auto-start"> Start typing automatically
+          </label>
+          <button type="button" id="site-jump" class="link-button link-quiet" title="Scroll down to humanizeai.pro">Site ↓</button>
+        </div>
       </div>
 
-      <details class="site-details" id="site-details" open>
-        <summary class="site-summary">
+      <!-- The site sits just below the visible area: fully loaded and rendered, but out of the way.
+           Scroll down to reach it (for example to answer its cookie popup). -->
+      <div class="site-details" id="site-details">
+        <div class="site-summary">
           <span>humanizeai.pro</span>
           <span class="site-state" id="site-state">Loading…</span>
-        </summary>
+        </div>
         <div class="frame-toolbar">
           <span class="hint">Answer its cookie popup once.</span>
           <div class="frame-actions">
@@ -46,9 +51,8 @@
             <button type="button" id="frame-popout" class="btn btn-ghost btn-sm">Window</button>
           </div>
         </div>
-      </details>
+      </div>
 
-      <!-- The site is shown by default: Chrome slows down hidden pages, so a visible site humanizes faster. -->
       <div class="frame-wrap" id="frame-wrap">
         <iframe id="humanizer-frame" title="humanizeai.pro"
                 allow="clipboard-read; clipboard-write"

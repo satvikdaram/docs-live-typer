@@ -58,7 +58,7 @@ The loop lives in the **service worker**, not the panel, so closing the panel do
 
 ## The Humanizer panel
 
-The Humanizer tab shows your own text box, with the real site in a frame below it. The site is visible by default, because Chrome slows down hidden pages; collapsing it hides it with CSS without unloading it. No private API is called: the extension drives the normal website. humanizeai.pro normally refuses to load inside other pages, so three small pieces make it work:
+The Humanizer tab shows your own text box, which fills the visible height. The real site sits in a frame just below it: fully loaded and rendered, but out of view until you scroll down. No private API is called: the extension drives the normal website. humanizeai.pro normally refuses to load inside other pages, so three small pieces make it work:
 
 | Piece | What it does |
 |---|---|

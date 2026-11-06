@@ -44,6 +44,18 @@ const ready = restore().catch((err) => console.error('restore failed', err));
 // Chrome remembers this setting, but setting it on every worker start keeps it true after updates.
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((err) => console.error(err));
 
+// One-time update: the countdown now defaults to off. Switch existing installs over once;
+// after that, whatever you set under Settings -> Countdown is kept.
+chrome.runtime.onInstalled.addListener(async () => {
+  const { countdownOffMigrated } = await chrome.storage.local.get('countdownOffMigrated');
+  if (countdownOffMigrated) return;
+  const current = await loadSettings();
+  await chrome.storage.local.set({
+    [SETTINGS_KEY]: normalizeSettings({ ...current, countdown: 0 }),
+    countdownOffMigrated: true,
+  });
+});
+
 // ---------------------------------------------------------------------------
 // Event listeners (registered synchronously so a restarted worker gets them)
 // ---------------------------------------------------------------------------

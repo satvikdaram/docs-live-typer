@@ -44,9 +44,9 @@ git clone https://github.com/satvikdaram/docs-live-typer.git
 **2. Type your first doc**
 
 1. Open a blank doc at [docs.new](https://docs.new).
-2. Click the extension icon. The side panel opens.
-3. In the **Typer** tab, paste some text and press **Start**.
-4. Click into the doc during the 3-second countdown, and watch it type.
+2. Click in the doc where you want the text.
+3. Click the extension icon. The side panel opens.
+4. In the **Typer** tab, paste some text and press **Start**. Typing begins right away.
 
 > Chrome shows a bar saying the extension *"started debugging this browser"*. That's expected: it's how real keystrokes reach Docs. Leave it open.
 

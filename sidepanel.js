@@ -49,6 +49,11 @@ const loading = document.getElementById('frame-loading');
 const fallback = document.getElementById('frame-fallback');
 const siteState = document.getElementById('site-state');
 const siteDetails = document.getElementById('site-details');
+
+/** The site lives just below the visible area; this scrolls it into view (e.g. after an error). */
+function revealSite() {
+  siteDetails.scrollIntoView({ block: 'start' });
+}
 let loaded = false;
 let timeout = null;
 
@@ -63,7 +68,7 @@ function loadFrame() {
       loading.hidden = true;
       fallback.hidden = false;
       siteState.textContent = 'Not loaded';
-      siteDetails.open = true;
+      revealSite();
     }
   }, FRAME_TIMEOUT_MS);
   // Re-assigning src forces a fresh load, even for the same URL.
@@ -85,6 +90,7 @@ function openHumanizerWindow() {
 }
 
 document.getElementById('frame-reload').addEventListener('click', loadFrame);
+document.getElementById('site-jump').addEventListener('click', revealSite);
 document.getElementById('fallback-retry').addEventListener('click', loadFrame);
 document.getElementById('frame-popout').addEventListener('click', openHumanizerWindow);
 document.getElementById('fallback-open').addEventListener('click', openHumanizerWindow);
@@ -224,7 +230,7 @@ humanizeBtn.addEventListener('click', () => {
   replyTimer = setTimeout(() => {
     resetHumanizeButton();
     setStatus(HUMANIZE_ERRORS.unreachable);
-    siteDetails.open = true;
+    revealSite();
   }, REPLY_TIMEOUT_MS);
 });
 
@@ -236,7 +242,7 @@ window.addEventListener('message', (e) => {
   if (!data.ok) {
     resetHumanizeButton();
     setStatus(HUMANIZE_ERRORS[data.reason] || HUMANIZE_ERRORS.unreachable);
-    if (data.reason !== 'empty') siteDetails.open = true; // show the site so you can see what's wrong
+    if (data.reason !== 'empty') revealSite(); // show the site so you can see what's wrong
     return;
   }
   humanizeBtn.textContent = 'Humanizing…';
@@ -244,7 +250,7 @@ window.addEventListener('message', (e) => {
   humanizeTimer = setTimeout(() => {
     resetHumanizeButton();
     setStatus(HUMANIZE_ERRORS.timeout);
-    siteDetails.open = true;
+    revealSite();
   }, HUMANIZE_TIMEOUT_MS);
 });
 

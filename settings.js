@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   fatigue: false,
   typos: false,
   typoRate: 2,        // % of letters that get a typo
-  countdown: 3,       // seconds before typing starts
+  countdown: 0,       // seconds before typing starts (0 = start right away)
 });
 
 // Slider limits: [min, max, step]

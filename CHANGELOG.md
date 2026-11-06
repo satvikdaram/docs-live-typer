@@ -2,9 +2,11 @@
 
 ## Unreleased
 
+- **No countdown by default:** typing starts the moment you press Start (click into the doc first). You can still turn a countdown on under Settings.
+- humanizeai.pro now sits just below the visible area of the Humanizer tab: still loaded and working, out of the way. **Site ↓** scrolls to it.
 - **New look:** a dark navy theme with soft blue and indigo glows, glass cards with gradient blue edges, gradient buttons, sliders, switches and progress, and a gradient title. All text passes WCAG AA contrast. Icons on the panel tabs, a status pill, sliders that fill to the thumb.
 - **New icon:** an indigo-to-blue squircle with typed lines and a text cursor, with a simplified 16 px version.
-- **Humanizer tab redesign:** paste text into the panel's own box and press **Humanize**. The site, shown at the bottom of the panel, gets your text and the result goes to the Typer. **Hide** collapses the site for a bigger text box.
+- **Humanizer tab redesign:** paste text into the panel's own box and press **Humanize**. The site gets your text and the result goes to the Typer.
 
 ## 1.1.0
 
