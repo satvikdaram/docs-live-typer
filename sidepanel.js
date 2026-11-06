@@ -1,4 +1,4 @@
-// sidepanel.js — side panel with two tabs: Humanizer (iframe) and Typer.
+// sidepanel.js — side panel with two tabs: Humanizer (text box + hidden site) and Typer.
 import { mountTyper } from './typer-ui.js';
 import { HUMANIZER_URL } from './shared.js';
 import { PANEL_TAB_KEY } from './settings.js';
@@ -47,6 +47,8 @@ chrome.storage.local.get(PANEL_TAB_KEY).then((stored) => {
 const frame = document.getElementById('humanizer-frame');
 const loading = document.getElementById('frame-loading');
 const fallback = document.getElementById('frame-fallback');
+const siteState = document.getElementById('site-state');
+const siteDetails = document.getElementById('site-details');
 let loaded = false;
 let timeout = null;
 
@@ -54,11 +56,14 @@ function loadFrame() {
   loaded = false;
   fallback.hidden = true;
   loading.hidden = false;
+  siteState.textContent = 'Loading…';
   clearTimeout(timeout);
   timeout = setTimeout(() => {
     if (!loaded) {
       loading.hidden = true;
       fallback.hidden = false;
+      siteState.textContent = 'Not loaded';
+      siteDetails.open = true;
     }
   }, FRAME_TIMEOUT_MS);
   // Re-assigning src forces a fresh load, even for the same URL.
@@ -71,6 +76,7 @@ frame.addEventListener('load', () => {
   loaded = true;
   clearTimeout(timeout);
   loading.hidden = true;
+  siteState.textContent = 'Ready';
 });
 
 function openHumanizerWindow() {
@@ -121,6 +127,7 @@ function sendToTyper({ append = false } = {}) {
   if (append) typer.appendCell(text);
   else typer.setDraft(text);
   sendText.value = '';
+  updateCount();
   setStatus(append ? 'Added as the next cell' : '');
   if (append) return true; // stay here so you can humanize the next block
   selectTab('typer');
@@ -131,7 +138,12 @@ function sendToTyper({ append = false } = {}) {
 
 sendBtn.addEventListener('click', () => sendToTyper());
 sendAppend.addEventListener('click', () => sendToTyper({ append: true }));
-sendText.addEventListener('input', () => { sendError.hidden = true; });
+const sendCount = document.getElementById('send-count');
+function updateCount() {
+  const n = (sendText.value.trim().match(/\S+/g) || []).length;
+  sendCount.textContent = `${n.toLocaleString('en-US')} ${n === 1 ? 'word' : 'words'}`;
+}
+sendText.addEventListener('input', () => { sendError.hidden = true; updateCount(); });
 sendText.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
     e.preventDefault();
@@ -142,8 +154,10 @@ sendText.addEventListener('keydown', (e) => {
 // Output read from humanizeai.pro by humanizer-content.js (in the iframe or a popup window).
 chrome.runtime.onMessage.addListener((msg) => {
   if (!msg || msg.type !== 'humanizer-output' || typeof msg.text !== 'string' || !msg.text.trim()) return;
-  if (document.activeElement === sendText && sendText.value.trim()) return; // don't overwrite your edits
+  // Don't overwrite text you're editing, unless it's the result you asked for.
+  if (!humanizing && document.activeElement === sendText && sendText.value.trim()) return;
   sendText.value = msg.text;
+  updateCount();
   sendError.hidden = true;
   const words = (msg.text.trim().match(/\S+/g) || []).length;
   setStatus(`Got ${words.toLocaleString('en-US')} words from the humanizer`);
@@ -156,7 +170,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
 });
 
-// ---------- Humanize button (presses the site's own button inside the frame) ----------
+// ---------- Humanize button: puts the box's text into the hidden site and presses its button ----------
 
 const humanizeBtn = document.getElementById('humanize-btn');
 const HUMANIZE_TIMEOUT_MS = 120000;
@@ -175,15 +189,22 @@ function resetHumanizeButton() {
 }
 
 const HUMANIZE_ERRORS = {
-  empty: 'Paste your text into the humanizer above first.',
-  'no-button': "Couldn't find the site's Humanize button. Press Reload, or answer the cookie popup first.",
+  empty: 'Paste some text into the box first.',
+  'no-input': "Couldn't find the site's text box. Open humanizeai.pro below and check it loaded.",
+  'no-button': "Couldn't press the site's Humanize button. Open humanizeai.pro below and answer its cookie popup.",
   busy: 'The humanizer is still working on the last request.',
   unreachable: "Couldn't reach the humanizer in the panel. Press Reload and try again.",
-  timeout: 'No result after 2 minutes. Check the humanizer above for a message.',
+  timeout: 'No result after 2 minutes. Open humanizeai.pro below to see what it says.',
 };
 
 humanizeBtn.addEventListener('click', () => {
   if (humanizing) return;
+  const text = sendText.value;
+  if (!text.trim()) {
+    sendError.hidden = false;
+    sendText.focus();
+    return;
+  }
   if (typer.isBusy()) {
     setStatus('Typer is busy. Stop it first.');
     return;
@@ -199,10 +220,11 @@ humanizeBtn.addEventListener('click', () => {
   const reqId = ++reqCounter;
   // The frame may redirect between www. and the bare domain, so don't pin the origin here;
   // the message only carries a request id, and the content script checks it came from us.
-  frame.contentWindow.postMessage({ type: 'typer:humanize', reqId }, '*');
+  frame.contentWindow.postMessage({ type: 'typer:humanize', reqId, text }, '*');
   replyTimer = setTimeout(() => {
     resetHumanizeButton();
     setStatus(HUMANIZE_ERRORS.unreachable);
+    siteDetails.open = true;
   }, REPLY_TIMEOUT_MS);
 });
 
@@ -214,13 +236,15 @@ window.addEventListener('message', (e) => {
   if (!data.ok) {
     resetHumanizeButton();
     setStatus(HUMANIZE_ERRORS[data.reason] || HUMANIZE_ERRORS.unreachable);
+    if (data.reason !== 'empty') siteDetails.open = true; // show the site so you can see what's wrong
     return;
   }
   humanizeBtn.textContent = 'Humanizing…';
-  setStatus(autoStart.checked ? 'Typing starts when the result is ready.' : 'The result goes to the Typer when it is ready.');
+  setStatus(autoStart.checked ? 'Humanizing… typing starts when the result is ready.' : 'Humanizing… the result goes to the Typer when it is ready.');
   humanizeTimer = setTimeout(() => {
     resetHumanizeButton();
     setStatus(HUMANIZE_ERRORS.timeout);
+    siteDetails.open = true;
   }, HUMANIZE_TIMEOUT_MS);
 });
 

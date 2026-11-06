@@ -15,7 +15,7 @@ docs-live-typer/
 ├── sidepanel.html/.js     The side panel: Humanizer and Typer tabs
 ├── typer-ui.js            The Typer tab's controls
 ├── styles.css             All styles, automatic light and dark mode
-├── humanizer-content.js   Content script on humanizeai.pro: reads the output, presses Humanize on request
+├── humanizer-content.js   Content script on humanizeai.pro: fills the input and presses Humanize on request, reads the output
 ├── frame-storage-fix.js   Lets humanizeai.pro keep cookies while embedded in the panel
 ├── rules.json             Header rule so humanizeai.pro can load inside the panel
 ├── icons/                 16, 48 and 128 px icons
@@ -58,13 +58,13 @@ The loop lives in the **service worker**, not the panel, so closing the panel do
 
 ## The Humanizer panel
 
-humanizeai.pro normally refuses to load inside other pages. Three small pieces make it work:
+The Humanizer tab shows your own text box. The real site stays loaded in a collapsed frame below it (CSS hides it without unloading it). No private API is called: the extension drives the normal website. humanizeai.pro normally refuses to load inside other pages, so three small pieces make it work:
 
 | Piece | What it does |
 |---|---|
 | `rules.json` | Removes `X-Frame-Options` and `Content-Security-Policy` response headers, **only** for `humanizeai.pro` and **only** for `sub_frame` requests. Normal tabs aren't touched |
 | `frame-storage-fix.js` | Runs in the page's own JavaScript world, only when embedded. Adds `SameSite=None; Secure; Partitioned` to cookies the page sets, so its cookie-popup answer can be saved. Partitioned cookies are kept separate from the site's normal cookies |
-| `humanizer-content.js` | Polls the output box. When the text has stopped changing for 2 s, sends it to the panel. When the panel's **Humanize** button sends a `postMessage` (checked to come from this extension), it presses the site's own Humanize button once |
+| `humanizer-content.js` | When the panel's **Humanize** button sends a `postMessage` (checked to come from this extension), it puts the text into the site's input box and presses the site's own Humanize button once. It then polls the output box, and when the result has stopped changing for 2 s, sends it to the panel |
 
 ## Permissions
 

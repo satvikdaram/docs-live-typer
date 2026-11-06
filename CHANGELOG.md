@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Humanizer tab redesign:** paste text into the panel's own box and press **Humanize**. The site stays loaded out of sight, gets your text, and the result goes to the Typer. Use **Show humanizeai.pro** to see the site.
+
 ## 1.1.0
 
 - **Side panel only:** clicking the toolbar icon now opens the side panel (the old popup is gone).

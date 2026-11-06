@@ -55,11 +55,13 @@ Google Docs auto-formats as you type. Lines starting with `- ` or `1. ` turn int
 
 ## The Humanizer tab is blank
 
-- Press **Reload** at the top of the tab.
-- Make sure the extension is enabled and loaded without errors at `chrome://extensions`.
-- Use **Open in a window**, which always works because nothing is embedded.
+Open **Show humanizeai.pro** at the bottom of the Humanizer tab first; the site is hidden by default.
 
-Chrome reports a frame as "loaded" even when the site refused to load in it. So the "didn't load" overlay only appears if nothing at all loads within 12 seconds. The **Open in a window** button is always available at the top.
+- Press **Reload**.
+- Make sure the extension is enabled and loaded without errors at `chrome://extensions`.
+- Use **Window**, which always works because nothing is embedded.
+
+Chrome reports a frame as "loaded" even when the site refused to load in it. So the "didn't load" overlay only appears if nothing at all loads within 12 seconds. The **Window** button is always there.
 
 ## The Humanizer is stuck on a cookie popup
 
@@ -70,17 +72,18 @@ The extension's `frame-storage-fix.js` handles this automatically, so answering 
 1. Reload the extension at `chrome://extensions`, then close and reopen the side panel.
 2. Still stuck? Open `chrome://settings/cookies`, add `[*.]humanizeai.pro` under **Allowed to use third-party cookies**, then press **Reload** in the panel.
 
-Signing in to the site inside the panel may not work for the same reason. Use **Open in a window** to sign in.
+Signing in to the site inside the panel may not work for the same reason. Use **Window** to sign in.
 
 ## The Humanize button shows an error
 
 | Message | Fix |
 |---|---|
-| *Paste your text into the humanizer above first* | The site's input box is empty |
-| *Couldn't find the site's Humanize button* | Answer the cookie popup, or press Reload |
+| *Paste some text into the box first* | The Humanizer tab's text box is empty |
+| *Couldn't find the site's text box* | Open **Show humanizeai.pro** and check the site loaded; press Reload |
+| *Couldn't press the site's Humanize button* | Open **Show humanizeai.pro** and answer the cookie popup |
 | *The humanizer is still working* | Wait for the current result |
 | *Couldn't reach the humanizer in the panel* | Press Reload, wait for the site to load, try again |
-| *No result after 2 minutes* | Check the site for an error message or a usage limit |
+| *No result after 2 minutes* | Look at the site view for an error message, a word limit or a usage limit |
 
 ## Could not reach the extension in the background
 

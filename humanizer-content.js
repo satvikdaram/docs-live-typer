@@ -3,8 +3,9 @@
 // It watches the humanizer's output box and, once the text stops changing, sends it to the
 // extension so the side panel can fill the Typer automatically.
 //
-// The only thing it ever does on the site: when you press "Humanize" in the side panel, it presses
-// the site's own "Humanize AI" button once. It never types into the site or clicks anything else.
+// The only thing it ever does on the site: when you press "Humanize" in the side panel, it puts
+// your text into the site's input box and presses the site's own "Humanize AI" button once.
+// It never clicks anything else.
 
 (() => {
   const POLL_MS = 500;
@@ -60,18 +61,39 @@
     const reply = (result) => {
       if (e.source) e.source.postMessage({ type: 'typer:humanize-result', reqId: e.data.reqId, ...result }, e.origin);
     };
+    if (typeof e.data.text === 'string') {
+      if (!e.data.text.trim()) return reply({ ok: false, reason: 'empty' });
+      if (!setInput(e.data.text)) return reply({ ok: false, reason: 'no-input' });
+    }
     if (!readInput().trim()) return reply({ ok: false, reason: 'empty' });
-    const button = findHumanizeButton();
-    if (!button) return reply({ ok: false, reason: 'no-button' });
-    if (button.disabled || button.getAttribute('aria-disabled') === 'true') return reply({ ok: false, reason: 'busy' });
 
-    // Treat whatever output is showing now as old, so only the NEW result gets sent.
-    lastSeen = readOutput();
-    lastSent = '';
-    changedAt = 0;
-    button.click();
-    reply({ ok: true });
+    // Give the site a moment to register the new text and enable its button.
+    setTimeout(() => {
+      const button = findHumanizeButton();
+      if (!button) return reply({ ok: false, reason: 'no-button' });
+      if (button.disabled || button.getAttribute('aria-disabled') === 'true') return reply({ ok: false, reason: 'busy' });
+
+      // Treat whatever output is showing now as old, so only the NEW result gets sent.
+      lastSeen = readOutput();
+      lastSent = '';
+      changedAt = 0;
+      button.click();
+      reply({ ok: true });
+    }, 300);
   });
+
+  /** Puts text into the site's input box the way a paste would, so the site notices the change. */
+  function setInput(text) {
+    const box = document.querySelector('textarea[class*="InputContainer_inputContainer"]')
+      || document.querySelector('textarea[placeholder*="Paste your text" i]');
+    if (!box) return false;
+    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
+    box.focus();
+    setter.call(box, text);
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    box.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  }
 
   const timer = setInterval(() => {
     const now = readOutput();

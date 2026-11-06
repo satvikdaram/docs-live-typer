@@ -26,7 +26,7 @@ A Chrome side panel for testing the Google Docs editor and demoing what live typ
 - **Fill whole tables.** Separate blocks with `---` and each one lands in the next table cell.
 - **Runs in the background.** Close the panel or switch tabs and it keeps typing. Pause from anywhere with **Alt+Shift+P**.
 - **Timing log.** Download a CSV of every run: speed, pauses, typos and keystroke latency per cell.
-- **Side-by-side workspace.** A Humanizer tab shows [humanizeai.pro](https://www.humanizeai.pro/) next to your doc, with one-click send to the Typer.
+- **Humanize in one click.** Paste text in the Humanizer tab, press **Humanize**, and the result from [humanizeai.pro](https://www.humanizeai.pro/) lands in the Typer, ready to type.
 - **Clean and simple.** Light and dark mode, keyboard friendly, no frameworks, no tracking, no build step.
 
 ## Quick start
@@ -76,7 +76,8 @@ Insert a table in your doc, click into the **first cell**, and press **Start**. 
 | Add typos, bursts or fatigue | **Settings → Behavior** |
 | Change pause lengths | **Settings → Pauses** |
 | Get the timing data | **Download timing log** after a run |
-| Send humanizer output | **Humanize**, **Add as cell** or **Send to Typer** in the Humanizer tab |
+| Humanize text first | Paste it in the **Humanizer** tab and press **Humanize** |
+| Build table cells one by one | **Add as cell** in the Humanizer tab |
 
 ## Documentation
 
@@ -93,7 +94,7 @@ Insert a table in your doc, click into the **first cell**, and press **Start**. 
 Google Docs ignores fake JavaScript key events, so the extension sends real ones through Chrome's debugger API. Chrome always shows that bar when an extension does this. [More](docs/troubleshooting.md#the-started-debugging-this-browser-bar)
 
 **Does it send my text anywhere?**
-No. The Typer only talks to your own Chrome. Nothing is collected or uploaded. The Humanizer tab is just humanizeai.pro, shown in a frame, under that site's own terms.
+No. The Typer only talks to your own Chrome. Nothing is collected or uploaded. **Humanize** sends your text to humanizeai.pro, the same as using that site yourself, under its own terms.
 
 **Will it work on Google Slides, Sheets or other sites?**
 No. It only types into Google Docs documents in edit mode.

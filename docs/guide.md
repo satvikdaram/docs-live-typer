@@ -88,20 +88,26 @@ How it behaves:
 
 ## The Humanizer tab
 
-The panel's first tab shows [humanizeai.pro](https://www.humanizeai.pro/) right next to your doc. Under it is a small bar:
+The panel's first tab is a text box with a **Humanize** button:
+
+1. Paste your text into the box.
+2. Press **Humanize**.
+
+The extension puts your text into [humanizeai.pro](https://www.humanizeai.pro/), which stays loaded out of sight at the bottom of the panel, and presses the site's own *Humanize AI* button. When the result is ready it goes to the Typer. With **Start typing automatically** on, typing starts right away. Each press handles one block of text.
 
 | Control | What it does |
 |---|---|
-| **Humanize** | Presses the site's own *Humanize AI* button for you, then sends the result to the Typer when it's ready |
-| **Add as cell** | Adds the text in the box as the next table cell, and keeps you on this tab |
-| **Send to Typer** | Replaces the Typer's text with the box's text |
-| **Auto-start** | When on, sending to the Typer also starts typing |
+| **Humanize** | Sends the box's text through humanizeai.pro, then to the Typer |
+| **Add as cell** | Adds the box's text, as it is, as the next table cell. You stay on this tab |
+| **Send to Typer** | Replaces the Typer's text with the box's text, as it is |
+| **Start typing automatically** | When on, text sent to the Typer starts typing |
+| **Show humanizeai.pro** | Shows the site itself, e.g. to answer its cookie popup or read an error message |
 
-The output box fills in automatically about 2 seconds after the site's result stops changing. You can also paste into it by hand.
+**First time:** open **Show humanizeai.pro** and answer the site's cookie popup once. After that you can keep the site hidden. If something goes wrong, the panel opens the site view for you so you can see what the site says.
 
-**Open in a window** opens the site in its own small window. That's useful for signing in. Auto-fill still works there while the panel is open, but the **Humanize** button only works with the site inside the panel.
+**Window** opens the site in its own small window, for example to sign in. The **Humanize** button only works with the copy inside the panel.
 
-The first time, the site shows a cookie popup inside the panel. Answer it once and it stays closed. See [troubleshooting](troubleshooting.md#the-humanizer-is-stuck-on-a-cookie-popup) if it doesn't.
+The extension doesn't call any hidden API. It uses the normal website, the same way you would.
 
 ## Timing log
 
