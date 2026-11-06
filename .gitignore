@@ -1,0 +1,11 @@
+# Chrome writes this when it loads the unpacked extension
+_metadata/
+
+# macOS / editors
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Python cache from tools/
+__pycache__/

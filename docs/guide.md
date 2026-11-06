@@ -1,0 +1,124 @@
+# User guide
+
+Everything Docs Live Typer can do, one feature at a time. New here? Start with [Quick start](../README.md#quick-start).
+
+- [Typing into a doc](#typing-into-a-doc)
+- [Speed and settings](#speed-and-settings)
+- [Pause, resume and stop](#pause-resume-and-stop)
+- [Filling a table](#filling-a-table)
+- [The Humanizer tab](#the-humanizer-tab)
+- [Timing log](#timing-log)
+
+---
+
+## Typing into a doc
+
+1. Open a Google Doc in edit mode (the address ends in `/edit`). [docs.new](https://docs.new) makes a blank one.
+2. Click the extension icon. The side panel opens on the right.
+3. Go to the **Typer** tab and paste your text.
+4. Press **Start**, then click into the doc where you want the text during the countdown.
+
+Text goes wherever the doc's cursor is. Line breaks in your text become real paragraphs.
+
+While typing, Chrome shows a bar that says the extension **"started debugging this browser"**. That's normal: it's how the extension sends real keystrokes. Leave it open. Clicking **Cancel** pauses typing.
+
+Typing runs in the background, so it keeps going if you close the panel or switch to another tab.
+
+The status dot at the top tells you where things stand:
+
+| Status | Meaning |
+|---|---|
+| **Ready** | The current tab is a Google Doc. You can start. |
+| **Not a Google Doc** | Switch to a doc tab first. |
+| **Starting in 3** | Countdown. Click into the doc now. |
+| **Typing** / **Paused** | A run is going. |
+
+## Speed and settings
+
+Pick **Slow** (35 WPM), **Normal** (60) or **Fast** (90). For anything else, open **Settings → Custom speed** (10–200 WPM).
+
+Everything else is under **Settings**, grouped:
+
+| Group | Setting | What it does |
+|---|---|---|
+| Speed | Custom speed | Any WPM from 10 to 200 |
+| | Randomness | How much each keystroke's timing varies |
+| Pauses | After commas / sentences / line breaks | Extra pause lengths |
+| Behavior | Typing bursts | A few quick words, then a short pause |
+| | Fatigue | Slows down a little over long text |
+| | Typos | Hits a nearby key now and then, then backspaces and fixes it |
+| Start | Countdown | 0–10 seconds before typing starts |
+
+**Reset to defaults** puts everything back. Settings are saved automatically.
+
+## Pause, resume and stop
+
+- **Pause / Resume:** the big button, or press **Alt+Shift+P** (Option+Shift+P on a Mac) from any tab.
+- **Stop:** ends the run. What's already typed stays in the doc.
+- Change the shortcut at `chrome://extensions/shortcuts`.
+
+If a typo is being fixed when you press Pause or Stop, the fix finishes first, so the doc is never left with a mistake.
+
+## Filling a table
+
+Put a line containing only `---` between blocks. Each block goes into the next table cell.
+
+```
+Name
+---
+Role
+---
+Ada Lovelace
+---
+Wrote the first published algorithm.
+```
+
+The Typer shows **Table mode · 4 cells**. Then:
+
+1. Insert a table in the doc (**Insert → Table**) and click into the **first cell**.
+2. Press **Start**.
+
+How it behaves:
+
+- After each block it presses **Tab** to move to the next cell (left to right, then down a row).
+- No Tab after the last block, so Docs won't add an extra row.
+- An **empty block** skips a cell.
+- Line breaks inside a block stay inside that cell.
+- Progress shows **Cell 2 of 4**.
+
+## The Humanizer tab
+
+The panel's first tab shows [humanizeai.pro](https://www.humanizeai.pro/) right next to your doc. Under it is a small bar:
+
+| Control | What it does |
+|---|---|
+| **Humanize** | Presses the site's own *Humanize AI* button for you, then sends the result to the Typer when it's ready |
+| **Add as cell** | Adds the text in the box as the next table cell, and keeps you on this tab |
+| **Send to Typer** | Replaces the Typer's text with the box's text |
+| **Auto-start** | When on, sending to the Typer also starts typing |
+
+The output box fills in automatically about 2 seconds after the site's result stops changing. You can also paste into it by hand.
+
+**Open in a window** opens the site in its own small window. That's useful for signing in. Auto-fill still works there while the panel is open, but the **Humanize** button only works with the site inside the panel.
+
+The first time, the site shows a cookie popup inside the panel. Answer it once and it stays closed. See [troubleshooting](troubleshooting.md#the-humanizer-is-stuck-on-a-cookie-popup) if it doesn't.
+
+## Timing log
+
+After every run, finished or stopped, a **Download timing log** link appears under Start. It saves a CSV with one row per cell (a normal run is one row):
+
+| Column | Meaning |
+|---|---|
+| `cell` | Cell number (1 for a normal run) |
+| `characters` | Characters in that cell |
+| `started_at` | When the cell's first keystroke was sent |
+| `duration_s` | Total time on the cell |
+| `paused_s` | Time spent paused |
+| `typing_s` | Time actually typing |
+| `chars_per_min` | Real typing speed for the cell |
+| `typos_fixed` | Typos made and corrected |
+| `send_errors` | Keystrokes Chrome refused (these pause the run) |
+| `avg_keystroke_latency_ms` / `max_keystroke_latency_ms` | How long Chrome took to accept each keystroke. This climbs when Docs gets slow |
+| `finished` | `no` if the run stopped partway through that cell |
+
+Only the most recent run's log is kept, so download it before starting the next run.

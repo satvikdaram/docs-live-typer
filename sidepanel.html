@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Docs Live Typer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="surface-panel">
+  <div class="panel">
+    <div class="segmented panel-tabs" role="tablist" aria-label="Panel sections">
+      <button type="button" class="segment" role="tab" id="tab-humanizer" data-view="humanizer"
+              aria-controls="view-humanizer" aria-selected="true">Humanizer</button>
+      <button type="button" class="segment" role="tab" id="tab-typer" data-view="typer"
+              aria-controls="view-typer" aria-selected="false" tabindex="-1">Typer</button>
+    </div>
+
+    <section id="view-humanizer" class="view view-humanizer" role="tabpanel" aria-labelledby="tab-humanizer">
+      <div class="frame-toolbar">
+        <span class="frame-title">humanizeai.pro</span>
+        <div class="frame-actions">
+          <button type="button" id="frame-reload" class="btn btn-ghost btn-sm">Reload</button>
+          <button type="button" id="frame-popout" class="btn btn-ghost btn-sm">Open in a window</button>
+        </div>
+      </div>
+
+      <div class="frame-wrap">
+        <iframe id="humanizer-frame" title="humanizeai.pro"
+                allow="clipboard-read; clipboard-write"
+                referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <div id="frame-loading" class="frame-loading">Loading humanizeai.pro…</div>
+        <div id="frame-fallback" class="frame-fallback" hidden>
+          <p class="fallback-title">The humanizer did not load here.</p>
+          <p class="fallback-text">Some sites refuse to be shown inside another page. You can still use it in its own small window and paste the result below.</p>
+          <button type="button" id="fallback-open" class="btn btn-primary">Open Humanizer in a window</button>
+          <button type="button" id="fallback-retry" class="link-button">Try again</button>
+        </div>
+      </div>
+
+      <div class="card send-card">
+        <div class="row-between">
+          <label class="label" for="send-text">Humanizer output</label>
+          <label class="inline-toggle" title="When new output is ready, send it to the Typer and start typing">
+            Auto-start <input type="checkbox" role="switch" class="switch" id="auto-start">
+          </label>
+        </div>
+        <textarea id="send-text" class="textarea textarea-sm" placeholder="Fills in automatically, or paste text…" spellcheck="false"></textarea>
+        <p id="send-error" class="send-error" role="alert" hidden>Paste some text first.</p>
+        <p id="send-status" class="hint" aria-live="polite" hidden></p>
+        <div class="send-actions">
+          <button type="button" id="humanize-btn" class="btn btn-primary btn-sm" title="Presses the site's Humanize AI button. The result goes to the Typer when it's ready.">Humanize</button>
+          <button type="button" id="send-append" class="btn btn-secondary btn-sm" title="Add this text as the next table cell">Add as cell</button>
+          <button type="button" id="send-btn" class="btn btn-secondary btn-sm" title="Replace the Typer's text with this (starts typing if Auto-start is on)">Send to Typer</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-typer" class="view" role="tabpanel" aria-labelledby="tab-typer" hidden>
+      <div id="typer" class="typer"></div>
+    </section>
+  </div>
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

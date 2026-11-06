@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "Docs Live Typer",
+  "version": "1.1.0",
+  "description": "Types text into a Google Doc one character at a time, with a side panel for humanizeai.pro.",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Open Docs Live Typer",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "permissions": [
+    "debugger",
+    "sidePanel",
+    "storage",
+    "tabs",
+    "alarms",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "https://docs.google.com/*",
+    "https://www.humanizeai.pro/*",
+    "https://humanizeai.pro/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.humanizeai.pro/*", "https://humanizeai.pro/*"],
+      "js": ["frame-storage-fix.js"],
+      "all_frames": true,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://www.humanizeai.pro/*", "https://humanizeai.pro/*"],
+      "js": ["humanizer-content.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "humanizer_frame",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "commands": {
+    "toggle-pause": {
+      "suggested_key": {
+        "default": "Alt+Shift+P"
+      },
+      "description": "Pause or resume typing"
+    }
+  }
+}
