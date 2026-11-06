@@ -14,7 +14,7 @@ docs-live-typer/
 ├── shared.js              Google Docs URL check, error messages, constants
 ├── sidepanel.html/.js     The side panel: Humanizer and Typer tabs
 ├── typer-ui.js            The Typer tab's controls
-├── styles.css             All styles, automatic light and dark mode
+├── styles.css             All styles (dark theme, design tokens at the top)
 ├── humanizer-content.js   Content script on humanizeai.pro: fills the input and presses Humanize on request, reads the output
 ├── frame-storage-fix.js   Lets humanizeai.pro keep cookies while embedded in the panel
 ├── rules.json             Header rule so humanizeai.pro can load inside the panel
@@ -58,7 +58,7 @@ The loop lives in the **service worker**, not the panel, so closing the panel do
 
 ## The Humanizer panel
 
-The Humanizer tab shows your own text box. The real site stays loaded in a collapsed frame below it (CSS hides it without unloading it). No private API is called: the extension drives the normal website. humanizeai.pro normally refuses to load inside other pages, so three small pieces make it work:
+The Humanizer tab shows your own text box, with the real site in a frame below it. The site is visible by default, because Chrome slows down hidden pages; collapsing it hides it with CSS without unloading it. No private API is called: the extension drives the normal website. humanizeai.pro normally refuses to load inside other pages, so three small pieces make it work:
 
 | Piece | What it does |
 |---|---|

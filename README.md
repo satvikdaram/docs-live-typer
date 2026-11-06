@@ -13,7 +13,7 @@ A Chrome side panel for testing the Google Docs editor and demoing what live typ
 ![No build step](https://img.shields.io/badge/build-none-555)
 ![License: MIT](https://img.shields.io/badge/license-MIT-555)
 
-<img src="docs/images/typer.png" width="300" alt="The Typer tab with table mode detected">&nbsp;&nbsp;&nbsp;<img src="docs/images/settings.png" width="300" alt="The Settings section">
+<img src="docs/images/humanizer.png" width="250" alt="The Humanizer tab">&nbsp;&nbsp;<img src="docs/images/typer.png" width="250" alt="The Typer tab with table mode detected">&nbsp;&nbsp;<img src="docs/images/settings.png" width="250" alt="The Settings section">
 
 </div>
 
@@ -27,7 +27,7 @@ A Chrome side panel for testing the Google Docs editor and demoing what live typ
 - **Runs in the background.** Close the panel or switch tabs and it keeps typing. Pause from anywhere with **Alt+Shift+P**.
 - **Timing log.** Download a CSV of every run: speed, pauses, typos and keystroke latency per cell.
 - **Humanize in one click.** Paste text in the Humanizer tab, press **Humanize**, and the result from [humanizeai.pro](https://www.humanizeai.pro/) lands in the Typer, ready to type.
-- **Clean and simple.** Light and dark mode, keyboard friendly, no frameworks, no tracking, no build step.
+- **A polished dark theme.** Layered surfaces, accessible contrast, keyboard friendly. No frameworks, no tracking, no build step.
 
 ## Quick start
 

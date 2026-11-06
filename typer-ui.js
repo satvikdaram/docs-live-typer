@@ -146,7 +146,12 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
     for (const input of settingInputs) {
       const key = input.dataset.setting;
       if (input.type === 'checkbox') input.checked = !!settings[key];
-      else input.value = String(settings[key]);
+      else {
+        input.value = String(settings[key]);
+        const min = Number(input.min);
+        const max = Number(input.max);
+        input.style.setProperty('--fill', `${((settings[key] - min) / (max - min)) * 100}%`);
+      }
       if (outputs[key] && SLIDERS[key]) outputs[key].textContent = SLIDERS[key].format(settings[key]);
     }
     let matched = false;
@@ -468,7 +473,10 @@ function buildTemplate(p) {
 
   return `
   <header class="typer-header">
-    <h1 class="title">Docs Live Typer</h1>
+    <div class="brand">
+      <img class="logo" src="icons/icon48.png" alt="" width="24" height="24">
+      <h1 class="title">Docs Live Typer</h1>
+    </div>
     <div class="status" data-ref="status" data-state="ready" role="status" aria-live="polite">
       <span class="status-dot" aria-hidden="true"></span>
       <span data-ref="statusText">Ready</span>

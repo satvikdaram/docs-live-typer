@@ -190,11 +190,11 @@ function resetHumanizeButton() {
 
 const HUMANIZE_ERRORS = {
   empty: 'Paste some text into the box first.',
-  'no-input': "Couldn't find the site's text box. Open humanizeai.pro below and check it loaded.",
-  'no-button': "Couldn't press the site's Humanize button. Open humanizeai.pro below and answer its cookie popup.",
+  'no-input': "Couldn't find the site's text box. Check that humanizeai.pro loaded below.",
+  'no-button': "Couldn't press the site's Humanize button. Answer its cookie popup below.",
   busy: 'The humanizer is still working on the last request.',
   unreachable: "Couldn't reach the humanizer in the panel. Press Reload and try again.",
-  timeout: 'No result after 2 minutes. Open humanizeai.pro below to see what it says.',
+  timeout: 'No result after 2 minutes. Check humanizeai.pro below for a message.',
 };
 
 humanizeBtn.addEventListener('click', () => {
