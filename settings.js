@@ -4,7 +4,6 @@
 export const SETTINGS_KEY = 'settings';
 export const DRAFT_KEY = 'draft';
 export const NOTICE_KEY = 'debugNoticeDismissed';
-export const PANEL_TAB_KEY = 'panelTab';
 
 export const SPEED_PRESETS = [
   { label: 'Slow', wpm: 35 },

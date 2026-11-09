@@ -88,7 +88,7 @@
       || document.querySelector('textarea[placeholder*="Paste your text" i]');
     if (!box) return false;
     const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
-    box.focus();
+    // No box.focus(): focusing inside the embedded site makes Chrome scroll the side panel down to it.
     setter.call(box, text);
     box.dispatchEvent(new Event('input', { bubbles: true }));
     box.dispatchEvent(new Event('change', { bubbles: true }));

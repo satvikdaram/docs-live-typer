@@ -7,7 +7,7 @@ When something goes wrong, the red box in the Typer says what happened and how t
 - [Typing stopped or paused](#typing-stopped-or-paused)
 - [Text looks oddly formatted](#text-looks-oddly-formatted)
 - [The shortcut does nothing](#the-shortcut-does-nothing)
-- [The Humanizer tab is blank](#the-humanizer-tab-is-blank)
+- [humanizeai.pro is blank](#humanizeaipro-is-blank)
 - [The Humanizer is stuck on a cookie popup](#the-humanizer-is-stuck-on-a-cookie-popup)
 - [The Humanize button shows an error](#the-humanize-button-shows-an-error)
 - [Could not reach the extension in the background](#could-not-reach-the-extension-in-the-background)
@@ -34,7 +34,7 @@ DevTools is open on the doc tab, or another extension is debugging it. Close Dev
 
 ## Typing stopped or paused
 
-- **The tab was closed or went to another page.** The run stops. To continue, delete the part that's already typed from the Typer's text box, then press Start again.
+- **The tab was closed or went to another page.** The run stops. To continue, delete the part that's already typed from the text box, then press Start again.
 - **Text is going to the wrong place.** Typing goes wherever the doc's cursor is. Click where you want the text, then press **Resume**.
 - **"A keystroke could not be sent."** Click into the doc and press **Resume**. If it keeps happening, reload the doc tab.
 - **View-only doc.** Open it in edit mode (the address should end in `/edit`).
@@ -53,9 +53,9 @@ Google Docs auto-formats as you type. Lines starting with `- ` or `1. ` turn int
 - The shortcut only pauses or resumes a run that's already going. It doesn't start one.
 - Shortcuts don't work on `chrome://` pages or the Chrome Web Store.
 
-## The Humanizer tab is blank
+## humanizeai.pro is blank
 
-The site sits just below the visible area of the Humanizer tab. Click **Site ↓** (or scroll down) to see it.
+The site sits just below the visible area of the panel. Click **Site ↓** (or scroll down) to see it.
 
 - Press **Reload**.
 - Make sure the extension is enabled and loaded without errors at `chrome://extensions`.
@@ -78,7 +78,7 @@ Signing in to the site inside the panel may not work for the same reason. Use **
 
 | Message | Fix |
 |---|---|
-| *Paste some text into the box first* | The Humanizer tab's text box is empty |
+| *Paste some text into the box first* | The text box is empty |
 | *Couldn't find the site's text box* | Click **Site ↓**, check the site loaded; press Reload |
 | *Couldn't press the site's Humanize button* | Click **Site ↓** and answer the site's cookie popup |
 | *The humanizer is still working* | Wait for the current result |

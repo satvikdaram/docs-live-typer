@@ -8,7 +8,7 @@
 import { loadSettings, normalizeSettings, SETTINGS_KEY } from './settings.js';
 import { PORT_NAME, ACTIVE_STATUSES, parseDocUrl, makeError } from './shared.js';
 import * as T from './timing.js';
-import { buildQueue, timingChars, cellLengths, newLogRow, CELL_SEP, LOG_KEY } from './queue.js';
+import { newLog, LOG_KEY } from './timing-log.js';
 
 const PROTOCOL_VERSION = '1.3';
 const HEARTBEAT_ALARM = 'typer-heartbeat';
@@ -131,8 +131,8 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local' || !changes[SETTINGS_KEY]) return;
   // Settings changes apply to a run that is already going.
   settings = normalizeSettings(changes[SETTINGS_KEY].newValue);
-  if (run && run.tchars) {
-    estimate = T.remainingTimeTable(run.tchars, settings);
+  if (run && run.chars) {
+    estimate = T.remainingTimeTable(run.chars, settings);
     broadcast();
   }
 });
@@ -195,7 +195,7 @@ async function startRun(msg) {
       return failStart(err);
     }
 
-    const { chars, cellCount } = buildQueue(text);
+    const chars = Array.from(text);
     const id = crypto.randomUUID();
     run = {
       id,
@@ -207,14 +207,11 @@ async function startRun(msg) {
       error: null,
       startedAt: Date.now(),
       pausedAt: 0,
-      cellCount,
-      cell: 0,                                                   // 0-based cell being typed
-      log: cellLengths(chars).map((n, i) => newLogRow(i + 1, n)), // one timing row per cell
+      log: newLog(chars.length), // timing log for this run
       chars,
-      tchars: timingChars(chars),
       countdownLeft: settings.countdown,
     };
-    estimate = T.remainingTimeTable(run.tchars, settings);
+    estimate = T.remainingTimeTable(run.chars, settings);
     await chrome.storage.session.set({ runText: { id, text } });
     persistMeta();
     ensureHeartbeat();
@@ -321,11 +318,11 @@ async function finishRun(status, error) {
 }
 
 // ---------------------------------------------------------------------------
-// Timing log (one row per table cell; a normal run is a single row)
+// Timing log (one per run)
 // ---------------------------------------------------------------------------
 
 function currentRow() {
-  return run && run.log ? run.log[Math.min(run.cell, run.log.length - 1)] : null;
+  return run && run.log ? run.log : null;
 }
 
 function addPausedTime() {
@@ -341,7 +338,7 @@ function saveLog(status) {
     row.endedAt = Date.now();
     row.done = status === 'done';
   }
-  const log = { finishedAt: Date.now(), status, wpm: settings.wpm, cellCount: run.cellCount, rows: run.log };
+  const log = { finishedAt: Date.now(), status, wpm: settings.wpm, run: run.log };
   chrome.storage.local.set({ [LOG_KEY]: log }).catch(() => {});
 }
 
@@ -440,8 +437,7 @@ async function typingLoop(token) {
     }
     sinceCheck++;
 
-    const tc = run.tchars; // same as chars, with "next cell" treated as a line break for timing
-    const ctx = { prev2: tc[i - 2] || '', prev: tc[i - 1] || '', ch: tc[i], index: i, settings, burst };
+    const ctx = { prev2: chars[i - 2] || '', prev: chars[i - 1] || '', ch: chars[i], index: i, settings, burst };
     let wait;
     if (shortDelayNext) {
       wait = T.keystrokeDelay(ctx, rand);
@@ -469,7 +465,7 @@ async function typingLoop(token) {
       }
       const t0 = performance.now();
       await typeChar(tabId, chars[i]);
-      if (row && chars[i] !== CELL_SEP && chars[i] !== '\n' && chars[i] !== '\t') {
+      if (row && chars[i] !== '\n' && chars[i] !== '\t') {
         const lat = performance.now() - t0; // how long Chrome/Docs took to accept the keystroke
         row.latSum += lat;
         row.latCount++;
@@ -482,12 +478,6 @@ async function typingLoop(token) {
       continue;
     }
 
-    if (chars[i] === CELL_SEP && row) {
-      // Moved on to the next table cell: close this cell's log row.
-      row.endedAt = Date.now();
-      row.done = true;
-      run.cell++;
-    }
     run.index = i + 1;
     persistMeta();
     broadcast();
@@ -510,7 +500,6 @@ async function performTypo(tabId, chars, i, plan, rand) {
 }
 
 async function typeChar(tabId, ch) {
-  if (ch === CELL_SEP) return pressKey(tabId, 'Tab'); // next table cell
   if (ch === '\n') return pressKey(tabId, 'Enter');
   if (ch === '\t') return pressKey(tabId, 'Tab');
   return chrome.debugger.sendCommand({ tabId }, 'Input.insertText', { text: ch });
@@ -632,7 +621,7 @@ function persistMeta() {
     chrome.storage.session.remove(['runMeta', 'runText']).catch(() => {});
     return;
   }
-  const { chars, tchars, countdownLeft, ...meta } = run;
+  const { chars, countdownLeft, ...meta } = run;
   chrome.storage.session.set({ runMeta: meta }).catch(() => {});
 }
 
@@ -640,14 +629,14 @@ async function restore() {
   settings = await loadSettings();
   const { runMeta, runText } = await chrome.storage.session.get(['runMeta', 'runText']);
   if (!runMeta) return;
-  const chars = runText && runText.id === runMeta.id ? buildQueue(runText.text).chars : null;
+  const chars = runText && runText.id === runMeta.id ? Array.from(runText.text) : null;
   const wasActive = ACTIVE_STATUSES.includes(runMeta.status);
   if (wasActive && !chars) {
     await chrome.storage.session.remove(['runMeta', 'runText']);
     return;
   }
-  run = { ...runMeta, chars, tchars: chars ? timingChars(chars) : null, countdownLeft: 0 };
-  if (run.tchars) estimate = T.remainingTimeTable(run.tchars, settings);
+  run = { ...runMeta, chars, countdownLeft: 0 };
+  if (chars) estimate = T.remainingTimeTable(chars, settings);
   if (run.status === 'typing' || run.status === 'countdown') {
     run.status = 'typing';
     // Don't await: this needs `ready`-independent work and must not block restore.
@@ -667,8 +656,6 @@ function snapshot() {
     total: run.total,
     etaMs,
     countdownLeft: run.countdownLeft || 0,
-    cellCount: run.cellCount || 1,
-    cell: Math.min((run.cell || 0) + 1, run.cellCount || 1),
     error: run.error || null,
   };
 }

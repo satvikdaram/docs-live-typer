@@ -9,11 +9,11 @@ docs-live-typer/
 ├── manifest.json          Manifest V3
 ├── background.js          Service worker: runs the typing loop, owns chrome.debugger
 ├── timing.js              Typing rhythm math (pure functions)
-├── queue.js               Table mode (--- splits) and the timing-log CSV
+├── timing-log.js          What the timing log records, and its CSV
 ├── settings.js            Defaults, slider ranges, storage helpers
 ├── shared.js              Google Docs URL check, error messages, constants
-├── sidepanel.html/.js     The side panel: Humanizer and Typer tabs
-├── typer-ui.js            The Typer tab's controls
+├── sidepanel.html/.js     The side panel: one screen, plus humanizeai.pro just below it
+├── typer-ui.js            The main screen's controls (text box, Humanize, Start, Settings)
 ├── styles.css             All styles (dark theme, design tokens at the top)
 ├── humanizer-content.js   Content script on humanizeai.pro: fills the input and presses Humanize on request, reads the output
 ├── frame-storage-fix.js   Lets humanizeai.pro keep cookies while embedded in the panel
@@ -52,13 +52,9 @@ The loop lives in the **service worker**, not the panel, so closing the panel do
 
 **Talking to the panel.** The panel opens a long-lived port (`chrome.runtime.connect`). The worker only posts to ports that are still open, so a closed panel never causes "Receiving end does not exist". The panel reconnects automatically if the worker restarts.
 
-## Table mode
-
-`queue.js` splits the text at lines containing only `---` and joins the blocks with a private-use character (`U+E000`) that the loop sends as a Tab key. For timing, that character counts as a line break. No separator follows the last block, so Docs never adds an extra row.
-
 ## The Humanizer panel
 
-The Humanizer tab shows your own text box, which fills the visible height. The real site sits in a frame just below it: fully loaded and rendered, but out of view until you scroll down. No private API is called: the extension drives the normal website. humanizeai.pro normally refuses to load inside other pages, so three small pieces make it work:
+The panel is one screen that fills the visible height. The real site sits in a frame just below it: fully loaded and rendered, but out of view until you scroll down. While a humanize is running, the panel undoes any scroll you didn't make yourself, so the site can't pull the view down when it focuses its own boxes. The result replaces the text box's contents. No private API is called: the extension drives the normal website. humanizeai.pro normally refuses to load inside other pages, so three small pieces make it work:
 
 | Piece | What it does |
 |---|---|
@@ -96,6 +92,6 @@ The engine was tested against a fake Chrome and a fake Google Doc. The checks co
 - DevTools already attached
 - tab closed or navigated away
 - a service-worker restart mid-run
-- table mode and the timing log
+- the timing log
 
 Basic typing, including typo fixes and the pause shortcut, was also checked by hand on a real Google Doc.

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **One screen:** the Humanizer and Typer tabs are merged. **Humanize** sits next to **Start** and rewrites the text in the box; with *Start typing after humanizing* on, typing follows.
+- **No more jumping:** the panel stays at the top while humanizing (the site used to pull the view down to itself).
+- **Table mode removed** (`---` cells, **Add as cell**). A `---` line is now typed as plain text. The timing log is one row per run.
 - **No countdown by default:** typing starts the moment you press Start (click into the doc first). You can still turn a countdown on under Settings.
 - humanizeai.pro now sits just below the visible area of the Humanizer tab: still loaded and working, out of the way. **Site ↓** scrolls to it.
 - **New look:** a dark navy theme with soft blue and indigo glows, glass cards with gradient blue edges, gradient buttons, sliders, switches and progress, and a gradient title. All text passes WCAG AA contrast. Icons on the panel tabs, a status pill, sliders that fill to the thumb.

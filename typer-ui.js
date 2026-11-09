@@ -1,16 +1,15 @@
 // typer-ui.js
-// The Typer controls, shared by the popup and the side panel's "Typer" tab.
-// mountTyper(element) builds the markup and wires it to the service worker.
-//
-// Layout (kept deliberately short): text box -> speed -> Start -> progress.
-// Everything else lives in the collapsed "Settings" section at the bottom.
+// The side panel's main screen: one text box, Humanize and Start, speed, progress, Settings.
+// mountTyper(element, { onHumanize }) builds the markup and wires it to the service worker.
+// Humanizing itself is done by sidepanel.js (it talks to the embedded humanizeai.pro);
+// this file only shows the button and calls onHumanize(text).
 
 import {
   DEFAULT_SETTINGS, RANGES, SPEED_PRESETS, SETTINGS_KEY, DRAFT_KEY, NOTICE_KEY,
   normalizeSettings, saveSettings, resetSettings,
 } from './settings.js';
 import { PORT_NAME, ACTIVE_STATUSES, parseDocUrl, makeError } from './shared.js';
-import { splitCells, logToCsv, LOG_KEY } from './queue.js';
+import { logToCsv, LOG_KEY } from './timing-log.js';
 
 const SLIDERS = {
   wpm: { label: 'Custom speed', format: (v) => `${v} WPM` },
@@ -30,7 +29,7 @@ const TOGGLES = {
 
 let mountCount = 0;
 
-export function mountTyper(root, { surface = 'popup' } = {}) {
+export function mountTyper(root, { onHumanize = null } = {}) {
   const p = `typer${++mountCount}`;
   root.innerHTML = buildTemplate(p);
 
@@ -40,9 +39,9 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
     statusText: $('statusText'),
     text: $('text'),
     counts: $('counts'),
-    tableInfo: $('tableInfo'),
-    tableHelp: $('tableHelp'),
-    tableHelpBtn: $('tableHelpBtn'),
+    humanize: $('humanize'),
+    humanizeStatus: $('humanizeStatus'),
+    autoRow: $('autoRow'),
     speedValue: $('speedValue'),
     presets: [...root.querySelectorAll('[data-wpm]')],
     reset: $('reset'),
@@ -67,7 +66,7 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
   const outputs = Object.fromEntries([...root.querySelectorAll('[data-out]')].map((o) => [o.dataset.out, o]));
 
   let settings = { ...DEFAULT_SETTINGS };
-  let runState = { status: 'idle', typed: 0, total: 0, etaMs: 0, countdownLeft: 0, error: null, cell: 1, cellCount: 1 };
+  let runState = { status: 'idle', typed: 0, total: 0, etaMs: 0, countdownLeft: 0, error: null };
   let activeTab = { checked: false, isDoc: false };
   let localError = null;
   let noticeDismissed = true;
@@ -78,6 +77,7 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
   let draftTimer = null;
   let draftTouched = false;
   let shortcutLabel = '';
+  let humanizeBusy = false;
 
   // ---------- connection to the service worker ----------
 
@@ -194,10 +194,6 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
     const chars = Array.from(v).length;
     const words = (v.trim().match(/\S+/g) || []).length;
     el.counts.textContent = `${fmt(chars)} ${chars === 1 ? 'character' : 'characters'} · ${fmt(words)} ${words === 1 ? 'word' : 'words'}`;
-    const cells = v.trim() ? splitCells(v).length : 1;
-    el.tableInfo.hidden = cells < 2;
-    el.tableInfo.textContent = `Table mode · ${cells} cells`;
-    el.tableHelpBtn.hidden = cells >= 2;
   }
 
   function render() {
@@ -215,8 +211,13 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
     el.status.dataset.state = key;
     el.statusText.textContent = label;
 
-    // Text box is locked while a run is active
-    el.text.disabled = active;
+    // Text box is locked while typing or humanizing
+    el.text.disabled = active || humanizeBusy;
+
+    // Humanize sits next to Start, and steps aside while typing
+    el.humanize.hidden = active || !onHumanize;
+    el.humanize.disabled = humanizeBusy;
+    el.autoRow.hidden = active || !onHumanize;
 
     // Buttons
     el.stop.hidden = !active;
@@ -247,8 +248,7 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
       const pct = Math.min(100, (st.typed / st.total) * 100);
       el.progressFill.style.width = `${pct}%`;
       el.progressBar.setAttribute('aria-valuenow', String(Math.round(pct)));
-      const cellText = st.cellCount > 1 ? `Cell ${st.cell} of ${st.cellCount}` : `${fmt(st.typed)} / ${fmt(st.total)} characters`;
-      el.progressCount.textContent = cellText;
+      el.progressCount.textContent = `${fmt(st.typed)} / ${fmt(st.total)} characters`;
       el.progressEta.textContent = etaLabel(st);
     }
 
@@ -310,9 +310,17 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
 
   el.stop.addEventListener('click', () => send({ type: 'stop' }));
   el.logDownload.addEventListener('click', downloadLog);
-  el.tableHelpBtn.addEventListener('click', () => {
-    el.tableHelp.hidden = !el.tableHelp.hidden;
-    el.tableHelpBtn.setAttribute('aria-expanded', String(!el.tableHelp.hidden));
+  el.humanize.addEventListener('click', () => {
+    if (humanizeBusy || !onHumanize) return;
+    const text = el.text.value;
+    if (!text.trim()) {
+      localError = makeError('EMPTY_TEXT');
+      render();
+      el.text.focus();
+      return;
+    }
+    localError = null;
+    onHumanize(text);
   });
 
   el.text.addEventListener('input', () => {
@@ -377,7 +385,7 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
       render();
     }
     if (changes[LOG_KEY]) {
-      lastLog = changes[LOG_KEY].newValue || null;
+      lastLog = validLog(changes[LOG_KEY].newValue);
       render();
     }
   });
@@ -406,7 +414,7 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
     settings = normalizeSettings(stored[SETTINGS_KEY]);
     if (!draftTouched) el.text.value = stored[DRAFT_KEY] || '';
     noticeDismissed = !!stored[NOTICE_KEY];
-    lastLog = stored[LOG_KEY] || null;
+    lastLog = validLog(stored[LOG_KEY]);
     renderSettings();
     updateCounts();
     render();
@@ -435,10 +443,16 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
       saveDraft();
       render();
     },
-    /** Adds text as the next table cell (inserts a --- line when the box isn't empty). */
-    appendCell(text) {
-      const current = el.text.value.replace(/\s+$/, '');
-      this.setDraft(current ? `${current}\n---\n${text}` : text);
+    /**
+     * Shows humanize progress. busy disables the button and locks the text box;
+     * label is the button text; message is the line under the buttons ('' hides it).
+     */
+    setHumanizeState({ busy = false, label = 'Humanize', message = '' } = {}) {
+      humanizeBusy = busy;
+      el.humanize.querySelector('[data-ref="humanizeLabel"]').textContent = label;
+      el.humanizeStatus.textContent = message;
+      el.humanizeStatus.hidden = !message;
+      render();
     },
     focusText() {
       if (!el.text.disabled) {
@@ -459,7 +473,6 @@ export function mountTyper(root, { surface = 'popup' } = {}) {
       start();
       return true;
     },
-    surface,
   };
 }
 
@@ -488,12 +501,7 @@ function buildTemplate(p) {
     <textarea id="${p}-text" class="textarea" data-ref="text" placeholder="Paste text to type…" spellcheck="false"></textarea>
     <div class="meta-row">
       <span data-ref="counts">0 characters · 0 words</span>
-      <span class="chip" data-ref="tableInfo" hidden></span>
-      <button type="button" class="link-button link-quiet" data-ref="tableHelpBtn" aria-expanded="false" aria-controls="${p}-table-help">Filling a table?</button>
     </div>
-    <p class="help" id="${p}-table-help" data-ref="tableHelp" hidden>
-      Put a line with only <code>---</code> between blocks. Each block goes into the next table cell (Tab moves between cells). Leave a block empty to skip a cell. Click into the first cell, then press Start.
-    </p>
   </div>
 
   <div class="stack">
@@ -505,9 +513,22 @@ function buildTemplate(p) {
     </div>
   </div>
 
-  <div class="actions">
-    <button type="button" class="btn btn-primary" data-ref="primary">Start</button>
-    <button type="button" class="btn btn-secondary" data-ref="stop" hidden>Stop</button>
+  <div class="stack">
+    <div class="actions">
+      <button type="button" class="btn btn-secondary btn-humanize" data-ref="humanize" title="Rewrites the text in the box with humanizeai.pro">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.75l1.4 3.6 3.6 1.4-3.6 1.4L8 11.75l-1.4-3.6-3.6-1.4 3.6-1.4L8 1.75z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M12.5 11l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4z" fill="currentColor"/></svg>
+        <span data-ref="humanizeLabel">Humanize</span>
+      </button>
+      <button type="button" class="btn btn-primary" data-ref="primary">Start</button>
+      <button type="button" class="btn btn-secondary" data-ref="stop" hidden>Stop</button>
+    </div>
+    <p class="hint humanize-status" data-ref="humanizeStatus" aria-live="polite" hidden></p>
+    <div class="auto-row" data-ref="autoRow">
+      <label class="inline-toggle" title="When the humanized text is ready, start typing it">
+        <input type="checkbox" role="switch" class="switch" id="${p}-auto" data-auto-start> Start typing after humanizing
+      </label>
+      <button type="button" class="link-button link-quiet" id="${p}-site-jump" data-site-jump title="Scroll down to humanizeai.pro">Site ↓</button>
+    </div>
   </div>
 
   <div class="error" data-ref="error" role="alert" hidden>
@@ -622,14 +643,15 @@ function etaLabel(st) {
   }
 }
 
+function validLog(log) {
+  return log && log.run ? log : null;
+}
+
 function logSummary(log) {
-  const rows = log.rows || [];
-  const starts = rows.map((r) => r.startedAt).filter(Boolean);
-  const ends = rows.map((r) => r.endedAt).filter(Boolean);
-  const secs = starts.length && ends.length ? Math.round((Math.max(...ends) - Math.min(...starts)) / 1000) : 0;
+  const r = log.run || {};
+  const secs = r.startedAt && r.endedAt ? Math.round((r.endedAt - r.startedAt) / 1000) : 0;
   const time = secs >= 60 ? `${Math.floor(secs / 60)} min ${secs % 60} s` : `${secs} s`;
-  const what = rows.length > 1 ? `${rows.length} cells` : 'Last run';
-  return `${what} · ${time} · ${log.status}`;
+  return `Last run · ${time} · ${log.status}`;
 }
 
 export function formatEta(ms) {

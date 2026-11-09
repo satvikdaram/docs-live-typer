@@ -134,16 +134,7 @@ body.surface-panel {
     linear-gradient(180deg, #0B0F1C 0%, #080A12 100%);
 }
 
-.panel {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
 
-.panel-tabs {
-  flex: none;
-  margin: 12px 12px 0;
-}
 
 .view {
   flex: 1;
@@ -785,49 +776,17 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 
 /* ---------- Humanizer tab ---------- */
 
-.view-humanizer {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  overflow-y: auto;
-}
 
-/* Fills exactly the visible height of the tab, which pushes the site just below the fold. */
-.humanize-card {
-  flex: none;
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px;
-}
 
-.humanize-text {
-  flex: 1 1 auto;
-  min-height: 120px;
-  resize: none;
-}
 
-.send-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
 
-.send-actions .btn {
-  min-width: 0;
-  padding: 0 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
-.send-error {
-  font-size: 12px;
-  color: var(--red);
-}
 
 .auto-row {
-  padding-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .site-details {
@@ -938,4 +897,59 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* ---------- one-screen layout ---------- */
+
+.view-main {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+/* Exactly the visible height, so the site below starts just out of view. */
+.main-screen {
+  flex: none;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-screen .typer {
+  flex: 1 1 auto;
+}
+
+/* Humanize: a glassy secondary button with an accent tint, next to the primary Start. */
+.actions .btn-humanize {
+  flex: 1;
+  background: linear-gradient(180deg, rgba(88, 108, 255, 0.20) 0%, rgba(60, 80, 220, 0.10) 100%);
+  border-color: rgba(130, 150, 255, 0.35);
+  color: #DCE2FF;
+}
+
+.actions .btn-humanize:not(:disabled):hover {
+  background: linear-gradient(180deg, rgba(88, 108, 255, 0.30) 0%, rgba(60, 80, 220, 0.16) 100%);
+}
+
+.btn-humanize svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.humanize-status {
+  text-align: center;
+}
+
+/* The text box grows to use the free height on the main screen. */
+.main-screen .typer > .stack:nth-child(2) {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.main-screen .typer > .stack:nth-child(2) .textarea {
+  flex: 1 1 auto;
+  resize: none;
 }
