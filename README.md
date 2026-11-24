@@ -53,7 +53,7 @@ git clone https://github.com/satvikdaram/docs-live-typer.git
 
 | Want to… | Do this |
 |---|---|
-| Change speed | **Slow** / **Normal** / **Fast**, or **Settings → Custom speed** |
+| Change speed | **Slow** / **Normal** / **Fast** / **Turbo**, or **Settings → Custom speed** (up to 300 WPM) |
 | Pause or resume | Main button, or **Alt+Shift+P** from any tab |
 | Stop | **Stop** (what's typed stays) |
 | Add typos, bursts or fatigue | **Settings → Behavior** |

@@ -9,6 +9,7 @@ export const SPEED_PRESETS = [
   { label: 'Slow', wpm: 35 },
   { label: 'Normal', wpm: 60 },
   { label: 'Fast', wpm: 90 },
+  { label: 'Turbo', wpm: 150 },
 ];
 
 export const DEFAULT_SETTINGS = Object.freeze({
@@ -26,7 +27,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
 
 // Slider limits: [min, max, step]
 export const RANGES = Object.freeze({
-  wpm: [10, 200, 1],
+  wpm: [10, 300, 1],
   randomness: [0, 100, 5],
   commaPause: [0, 1000, 25],
   sentencePause: [0, 2500, 50],

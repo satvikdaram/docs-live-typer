@@ -10,7 +10,7 @@ export const TIMING = {
   CHARS_PER_WORD: 5,          // standard WPM definition: 1 word = 5 characters
 
   // Single keystroke limits
-  MIN_KEY_MS: 35,             // no keystroke is ever faster than this
+  MIN_KEY_MS: 20,             // no keystroke is ever faster than this (low enough for 300 WPM)
   MAX_KEY_FACTOR: 3.5,        // ...or slower than 3.5x its expected delay
   MAX_TOTAL_MS: 6000,         // hard ceiling for keystroke + any pause (no long freezes)
   MAX_SIGMA: 0.8,             // log-normal spread when "Randomness" is 100%

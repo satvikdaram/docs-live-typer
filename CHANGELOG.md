@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0
+
+- **Faster typing:** new **Turbo** preset (150 WPM), and Custom speed now goes up to 300 WPM. The shortest possible keystroke dropped from 35 ms to 20 ms so high speeds aren't capped.
+
 ## 1.2.0
 
 - **Fix: humanizeai.pro froze inside the panel.** Chrome stops drawing embedded pages that are off-screen, and the site sat below the panel, so its results never appeared or its editor never loaded ("still working on the last request"). The site now runs invisibly *behind* the panel, where Chrome keeps it running. **Show site** brings it to the front; **← Back** or Esc hides it.

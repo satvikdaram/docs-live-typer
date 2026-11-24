@@ -36,7 +36,9 @@ The status dot at the top tells you where things stand:
 
 ## Speed and settings
 
-Pick **Slow** (35 WPM), **Normal** (60) or **Fast** (90). For anything else, open **Settings → Custom speed** (10–200 WPM).
+Pick **Slow** (35 WPM), **Normal** (60), **Fast** (90) or **Turbo** (150). For anything else, open **Settings → Custom speed** (10–300 WPM).
+
+At high speeds, the pauses after commas, sentences and line breaks make up most of the time. To go even faster, shorten them under **Settings → Pauses** and turn off **Typing bursts**.
 
 Everything else is under **Settings**, grouped:
 

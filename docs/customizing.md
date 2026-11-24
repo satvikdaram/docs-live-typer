@@ -41,7 +41,7 @@ For every character, `timing.js` works out a delay:
 - Lower `BURST_PAUSE_MIN_MS` / `BURST_PAUSE_MAX_MS`, or turn bursts off.
 - With typos on: lower `TYPO_NOTICE_MS` (380) and `BACKSPACE_FACTOR` (0.6).
 
-**Too fast or jittery:** raise `MIN_KEY_MS` (35).
+**Too fast or jittery:** raise `MIN_KEY_MS` (20).
 
 ## Typo knobs
 
