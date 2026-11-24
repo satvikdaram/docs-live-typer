@@ -953,3 +953,62 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   flex: 1 1 auto;
   resize: none;
 }
+
+/* ---------- humanizeai.pro: kept running invisibly behind the panel ----------
+ * Chrome stops drawing embedded pages that are outside the visible area (they used to sit
+ * below the panel), which made the site hang: no result shown, or its editor never appeared.
+ * So the site always stays inside the visible area: fully transparent and behind the panel,
+ * where Chrome keeps it running at full speed. "Site" brings it to the front; "Back" hides it.
+ */
+.frame-wrap {
+  position: fixed;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* The site's toolbar only exists while the site is shown. */
+.site-details {
+  display: none;
+}
+
+body.show-site .site-details {
+  display: block;
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 21;
+}
+
+body.show-site .frame-wrap {
+  top: 96px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 20;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* While the site is shown, the panel underneath is dimmed and can't be clicked. */
+body.show-site .main-screen {
+  opacity: 0.25;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+body.show-site .site-details {
+  background: var(--surface-2);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}

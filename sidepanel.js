@@ -1,20 +1,21 @@
 // sidepanel.js — the side panel: one screen (text box, Humanize, Start, settings),
-// with humanizeai.pro loaded just below the visible area.
+// with humanizeai.pro running invisibly behind it ("Show site" brings it to the front).
 import { mountTyper } from './typer-ui.js';
 import { HUMANIZER_URL } from './shared.js';
 
 const FRAME_TIMEOUT_MS = 12000;
 const HUMANIZE_TIMEOUT_MS = 120000;
-const REPLY_TIMEOUT_MS = 3000;
+const REPLY_TIMEOUT_MS = 7000;   // the content script waits up to ~4 s for the site's button
+const RETRY_SETTLE_MS = 2500;    // after reloading the site, give it time to start up
 const AUTO_START_KEY = 'autoStart';
 
 const HUMANIZE_ERRORS = {
   empty: 'Paste some text into the box first.',
-  'no-input': "Couldn't find the site's text box. Press Site ↓ and check humanizeai.pro loaded.",
-  'no-button': "Couldn't press the site's Humanize button. Press Site ↓ and answer its cookie popup.",
-  busy: 'The humanizer is still working on the last request.',
-  unreachable: "Couldn't reach humanizeai.pro. Press Site ↓, then Reload, and try again.",
-  timeout: 'No result after 2 minutes. Press Site ↓ to see what humanizeai.pro says.',
+  'no-input': "Couldn't find the site's text box. Press Show site and check humanizeai.pro loaded.",
+  'no-button': "Couldn't press the site's Humanize button. Press Show site and answer its cookie popup.",
+  busy: "humanizeai.pro's Humanize button stayed greyed out, even after reloading it. Press Show site to see why.",
+  unreachable: "Couldn't reach humanizeai.pro. Press Show site, then Reload, and try again.",
+  timeout: 'No result after 2 minutes. Press Show site to see what humanizeai.pro says.',
 };
 
 const view = document.getElementById('view-main');
@@ -70,6 +71,10 @@ frame.addEventListener('load', () => {
   clearTimeout(frameTimer);
   loading.hidden = true;
   siteState.textContent = 'Ready';
+  if (retryOnLoad) {
+    retryOnLoad = false;
+    setTimeout(sendRequest, RETRY_SETTLE_MS);
+  }
 });
 
 function openHumanizerWindow() {
@@ -77,18 +82,24 @@ function openHumanizerWindow() {
     .catch((err) => console.error('Could not open window', err));
 }
 
-function scrollToSite() {
-  markUserScroll();
-  siteDetails.scrollIntoView({ block: 'start' });
+/** Brings humanizeai.pro in front of the panel (e.g. to answer its cookie popup). */
+function showSite() {
+  document.body.classList.add('show-site');
+  document.getElementById('site-top').focus();
 }
 
-function scrollToTop() {
-  markUserScroll();
+/** Puts it back behind the panel, where it keeps running invisibly. */
+function hideSite() {
+  document.body.classList.remove('show-site');
   view.scrollTop = 0;
+  document.querySelector('[data-site-jump]').focus();
 }
 
-document.querySelector('[data-site-jump]').addEventListener('click', scrollToSite);
-document.getElementById('site-top').addEventListener('click', scrollToTop);
+document.querySelector('[data-site-jump]').addEventListener('click', showSite);
+document.getElementById('site-top').addEventListener('click', hideSite);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.body.classList.contains('show-site')) hideSite();
+});
 document.getElementById('frame-reload').addEventListener('click', loadFrame);
 document.getElementById('fallback-retry').addEventListener('click', loadFrame);
 document.getElementById('frame-popout').addEventListener('click', openHumanizerWindow);
@@ -104,6 +115,9 @@ const autoStart = document.querySelector('[data-auto-start]');
 let reqCounter = 0;
 let humanizeTimer = null;
 let replyTimer = null;
+let pendingText = '';
+let retried = false;
+var retryOnLoad = false; // var: the frame's load handler above reads it
 
 function finishHumanize(message = '') {
   humanizing = false;
@@ -124,13 +138,38 @@ function humanize(text) {
     return;
   }
   humanizing = true;
+  pendingText = text;
+  retried = false;
   view.scrollTop = 0;
   typer.setHumanizeState({ busy: true, label: 'Working…', message: '' });
+  sendRequest();
+}
+
+/** Hands the pending text to the site (via the content script) and waits for its answer. */
+function sendRequest() {
+  if (!humanizing) return;
   const reqId = ++reqCounter;
+  clearTimeout(replyTimer);
   // The frame may redirect between www. and the bare domain, so the target origin isn't pinned.
   // The content script checks the message came from this extension.
-  frame.contentWindow.postMessage({ type: 'typer:humanize', reqId, text }, '*');
-  replyTimer = setTimeout(() => finishHumanize(HUMANIZE_ERRORS.unreachable), REPLY_TIMEOUT_MS);
+  frame.contentWindow.postMessage({ type: 'typer:humanize', reqId, text: pendingText }, '*');
+  replyTimer = setTimeout(() => recoverOrFail('unreachable'), REPLY_TIMEOUT_MS);
+}
+
+/** The site got stuck: reload it once and try again; if that fails too, explain. */
+function recoverOrFail(reason) {
+  if (!humanizing) return;
+  if (!retried && ['busy', 'no-button', 'unreachable'].includes(reason)) {
+    retried = true;
+    clearTimeout(replyTimer);
+    typer.setHumanizeState({ busy: true, label: 'Reloading site…', message: 'humanizeai.pro got stuck, so it is being reloaded. Trying again…' });
+    retryOnLoad = true;
+    loadFrame();
+    // If the site doesn't come back, stop waiting.
+    replyTimer = setTimeout(() => finishHumanize(HUMANIZE_ERRORS.unreachable), FRAME_TIMEOUT_MS + RETRY_SETTLE_MS + 2000);
+    return;
+  }
+  finishHumanize(HUMANIZE_ERRORS[reason] || HUMANIZE_ERRORS.unreachable);
 }
 
 // The content script's answer: did it manage to press the site's button?
@@ -140,7 +179,7 @@ window.addEventListener('message', (e) => {
   if (!data || data.type !== 'typer:humanize-result' || data.reqId !== reqCounter || !humanizing) return;
   clearTimeout(replyTimer);
   if (!data.ok) {
-    finishHumanize(HUMANIZE_ERRORS[data.reason] || HUMANIZE_ERRORS.unreachable);
+    recoverOrFail(data.reason);
     return;
   }
   typer.setHumanizeState({

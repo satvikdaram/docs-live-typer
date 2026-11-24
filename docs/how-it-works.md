@@ -12,7 +12,7 @@ docs-live-typer/
 ├── timing-log.js          What the timing log records, and its CSV
 ├── settings.js            Defaults, slider ranges, storage helpers
 ├── shared.js              Google Docs URL check, error messages, constants
-├── sidepanel.html/.js     The side panel: one screen, plus humanizeai.pro just below it
+├── sidepanel.html/.js     The side panel: one screen, with humanizeai.pro running invisibly behind it
 ├── typer-ui.js            The main screen's controls (text box, Humanize, Start, Settings)
 ├── styles.css             All styles (dark theme, design tokens at the top)
 ├── humanizer-content.js   Content script on humanizeai.pro: fills the input and presses Humanize on request, reads the output
@@ -54,13 +54,13 @@ The loop lives in the **service worker**, not the panel, so closing the panel do
 
 ## The Humanizer panel
 
-The panel is one screen that fills the visible height. The real site sits in a frame just below it: fully loaded and rendered, but out of view until you scroll down. While a humanize is running, the panel undoes any scroll you didn't make yourself, so the site can't pull the view down when it focuses its own boxes. The result replaces the text box's contents. No private API is called: the extension drives the normal website. humanizeai.pro normally refuses to load inside other pages, so three small pieces make it work:
+The panel is one screen. The real site sits in a frame **behind** it: fixed to the visible area, fully transparent and not clickable. It must stay inside the visible area, because Chrome stops drawing embedded pages that are off-screen; when the site used to sit below the panel, it froze (results never appeared, or its editor never loaded). **Show site** brings the frame to the front. The extension reads the humanized text from the site's own `/api/process` answer rather than from the screen, and if the site's button is stuck it reloads the site once and retries. While a humanize is running, the panel undoes any scroll you didn't make yourself, so the site can't pull the view down when it focuses its own boxes. The result replaces the text box's contents. No private API is called: the extension drives the normal website. humanizeai.pro normally refuses to load inside other pages, so three small pieces make it work:
 
 | Piece | What it does |
 |---|---|
 | `rules.json` | Removes `X-Frame-Options` and `Content-Security-Policy` response headers, **only** for `humanizeai.pro` and **only** for `sub_frame` requests. Normal tabs aren't touched |
-| `frame-storage-fix.js` | Runs in the page's own JavaScript world, only when embedded. Adds `SameSite=None; Secure; Partitioned` to cookies the page sets, so its cookie-popup answer can be saved. Partitioned cookies are kept separate from the site's normal cookies |
-| `humanizer-content.js` | When the panel's **Humanize** button sends a `postMessage` (checked to come from this extension), it puts the text into the site's input box and presses the site's own Humanize button once. It then polls the output box, and when the result has stopped changing for 2 s, sends it to the panel |
+| `frame-storage-fix.js` | Runs in the page's own JavaScript world, only when embedded. Adds `SameSite=None; Secure; Partitioned` to cookies the page sets, so its cookie-popup answer can be saved. It also reads the humanized text from the site's own `/api/process` answer, because inside the panel the site often never draws the result on screen |
+| `humanizer-content.js` | When the panel's **Humanize** button sends a `postMessage` (checked to come from this extension), it puts the text into the site's input box and presses the site's own Humanize button once. The result comes from `frame-storage-fix.js`; as a fallback it also polls the output box and sends it once it stops changing for 2 s. If the site's button is stuck, the panel reloads the site once and retries |
 
 ## Permissions
 

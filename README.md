@@ -60,7 +60,7 @@ git clone https://github.com/satvikdaram/docs-live-typer.git
 | Change pause lengths | **Settings → Pauses** |
 | Get the timing data | **Download timing log** after a run |
 | Humanize text first | **Humanize** (with *Start typing after humanizing* on, it types right after) |
-| See humanizeai.pro itself | **Site ↓** (it sits just below the panel) |
+| See humanizeai.pro itself | **Show site** (it runs invisibly behind the panel); **← Back** hides it |
 
 ## Documentation
 

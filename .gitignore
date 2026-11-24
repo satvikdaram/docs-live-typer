@@ -9,3 +9,6 @@ _metadata/
 
 # Python cache from tools/
 __pycache__/
+
+# Packaged downloads
+dist/

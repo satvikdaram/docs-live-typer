@@ -527,7 +527,7 @@ function buildTemplate(p) {
       <label class="inline-toggle" title="When the humanized text is ready, start typing it">
         <input type="checkbox" role="switch" class="switch" id="${p}-auto" data-auto-start> Start typing after humanizing
       </label>
-      <button type="button" class="link-button link-quiet" id="${p}-site-jump" data-site-jump title="Scroll down to humanizeai.pro">Site ↓</button>
+      <button type="button" class="link-button link-quiet" id="${p}-site-jump" data-site-jump title="Show humanizeai.pro (e.g. to answer its cookie popup)">Show site</button>
     </div>
   </div>
 

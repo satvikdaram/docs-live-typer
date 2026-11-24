@@ -1,6 +1,8 @@
 // frame-storage-fix.js
 // Runs in humanizeai.pro's own JavaScript world (manifest "world": "MAIN"), before the page's
 // scripts, and ONLY when the site is embedded in a frame (the side panel). Normal tabs are untouched.
+// It does two things: lets the site keep cookies while embedded (below), and reads the humanized
+// text from the site's own /api/process answer (at the end of this file).
 //
 // Why: inside the side panel, humanizeai.pro is a third-party frame, and Chrome blocks its
 // cookies there. The site stores your cookie-popup answer in a cookie, so the write silently
@@ -57,4 +59,55 @@
       }
     }
   }
+
+  // ---------- Read the humanized text from the site's own answer ----------
+  // Inside the panel, the site gets its result back from /api/process but often never draws it
+  // on screen, which left Humanize waiting forever. So read the answer itself and hand it to
+  // the extension's content script (humanizer-content.js) in this same frame.
+  // This only reads the response the site already asked for; it never sends anything itself.
+  const API_PATH = '/api/process';
+
+  function announce(json) {
+    try {
+      const results = json && Array.isArray(json.result) ? json.result : [];
+      const text = results.map((r) => (r && typeof r.text === 'string' ? r.text : '')).filter(Boolean).join('\n\n');
+      if (text.trim()) window.postMessage({ type: 'typer:api-result', text }, location.origin);
+    } catch {
+      // unexpected shape: the on-screen reader in humanizer-content.js is the fallback
+    }
+  }
+
+  const isApi = (url) => {
+    try {
+      return new URL(url, location.href).pathname === API_PATH;
+    } catch {
+      return false;
+    }
+  };
+
+  const realFetch = window.fetch;
+  if (typeof realFetch === 'function') {
+    window.fetch = function (input, init) {
+      const url = typeof input === 'string' ? input : (input && input.url) || '';
+      const p = realFetch.apply(this, arguments);
+      if (isApi(url)) {
+        p.then((res) => res.clone().json().then(announce)).catch(() => {});
+      }
+      return p;
+    };
+  }
+
+  const realOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function (method, url) {
+    if (isApi(url)) {
+      this.addEventListener('load', () => {
+        try {
+          announce(typeof this.response === 'object' && this.response ? this.response : JSON.parse(this.responseText));
+        } catch {
+          // ignore
+        }
+      });
+    }
+    return realOpen.apply(this, arguments);
+  };
 })();

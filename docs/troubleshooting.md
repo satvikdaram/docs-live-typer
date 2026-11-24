@@ -55,7 +55,7 @@ Google Docs auto-formats as you type. Lines starting with `- ` or `1. ` turn int
 
 ## humanizeai.pro is blank
 
-The site sits just below the visible area of the panel. Click **Site ↓** (or scroll down) to see it.
+The site runs invisibly behind the panel. Click **Show site** to see it.
 
 - Press **Reload**.
 - Make sure the extension is enabled and loaded without errors at `chrome://extensions`.
@@ -79,9 +79,9 @@ Signing in to the site inside the panel may not work for the same reason. Use **
 | Message | Fix |
 |---|---|
 | *Paste some text into the box first* | The text box is empty |
-| *Couldn't find the site's text box* | Click **Site ↓**, check the site loaded; press Reload |
-| *Couldn't press the site's Humanize button* | Click **Site ↓** and answer the site's cookie popup |
-| *The humanizer is still working* | Wait for the current result |
+| *Couldn't find the site's text box* | Click **Show site**, check the site loaded; press Reload |
+| *Couldn't press the site's Humanize button* | Click **Show site** and answer the site's cookie popup |
+| *humanizeai.pro's Humanize button stayed greyed out* | The panel already reloaded the site once. Press **Show site** to see what it says (for example a usage limit) |
 | *Couldn't reach the humanizer in the panel* | Press Reload, wait for the site to load, try again |
 | *No result after 2 minutes* | Look at the site view for an error message, a word limit or a usage limit |
 

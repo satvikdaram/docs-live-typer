@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 1.2.0
+
+- **Fix: humanizeai.pro froze inside the panel.** Chrome stops drawing embedded pages that are off-screen, and the site sat below the panel, so its results never appeared or its editor never loaded ("still working on the last request"). The site now runs invisibly *behind* the panel, where Chrome keeps it running. **Show site** brings it to the front; **← Back** or Esc hides it.
+- **Fix: Humanize could hang forever** or say the humanizer was "still working on the last request". Inside the panel, humanizeai.pro returns the result but often never draws it, so the extension now reads the result from the site's own answer. If the site's button is stuck, the panel reloads the site once and tries again.
 
 - **One screen:** the Humanizer and Typer tabs are merged. **Humanize** sits next to **Start** and rewrites the text in the box; with *Start typing after humanizing* on, typing follows.
 - **No more jumping:** the panel stays at the top while humanizing (the site used to pull the view down to itself).

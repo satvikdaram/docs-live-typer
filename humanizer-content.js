@@ -61,25 +61,42 @@
     const reply = (result) => {
       if (e.source) e.source.postMessage({ type: 'typer:humanize-result', reqId: e.data.reqId, ...result }, e.origin);
     };
-    if (typeof e.data.text === 'string') {
-      if (!e.data.text.trim()) return reply({ ok: false, reason: 'empty' });
-      if (!setInput(e.data.text)) return reply({ ok: false, reason: 'no-input' });
-    }
-    if (!readInput().trim()) return reply({ ok: false, reason: 'empty' });
+    const text = typeof e.data.text === 'string' ? e.data.text : null;
+    if (text !== null && !text.trim()) return reply({ ok: false, reason: 'empty' });
 
-    // Give the site a moment to register the new text and enable its button.
-    setTimeout(() => {
+    // Put the text in, then wait (up to ~4 s) for the site to accept it and enable its button.
+    // The site can re-render while it loads and drop the text, so put it back if that happens.
+    const started = Date.now();
+    const attempt = () => {
+      if (text !== null && readInput() !== text && !setInput(text)) return reply({ ok: false, reason: 'no-input' });
       const button = findHumanizeButton();
-      if (!button) return reply({ ok: false, reason: 'no-button' });
-      if (button.disabled || button.getAttribute('aria-disabled') === 'true') return reply({ ok: false, reason: 'busy' });
+      const ready = button && !button.disabled && button.getAttribute('aria-disabled') !== 'true';
+      if (ready && readInput().trim()) {
+        // Treat whatever output is showing now as old, so only the NEW result gets sent.
+        lastSeen = readOutput();
+        lastSent = '';
+        changedAt = 0;
+        awaitingResult = true;
+        button.click();
+        return reply({ ok: true });
+      }
+      if (Date.now() - started < 4000) return setTimeout(attempt, 250);
+      if (!readInput().trim()) return reply({ ok: false, reason: 'empty' });
+      return reply({ ok: false, reason: button ? 'busy' : 'no-button' });
+    };
+    setTimeout(attempt, 150);
+  });
 
-      // Treat whatever output is showing now as old, so only the NEW result gets sent.
-      lastSeen = readOutput();
-      lastSent = '';
-      changedAt = 0;
-      button.click();
-      reply({ ok: true });
-    }, 300);
+  // The humanized text read straight from the site's /api/process answer (frame-storage-fix.js).
+  // This is the main path: inside the panel the site often never draws the result on screen.
+  let awaitingResult = false;
+  window.addEventListener('message', (e) => {
+    if (e.source !== window || e.origin !== location.origin) return;
+    if (!e.data || e.data.type !== 'typer:api-result' || typeof e.data.text !== 'string') return;
+    if (!awaitingResult) return;
+    awaitingResult = false;
+    lastSent = e.data.text; // don't send it a second time from the on-screen reader
+    send(e.data.text);
   });
 
   /** Puts text into the site's input box the way a paste would, so the site notices the change. */
@@ -104,6 +121,7 @@
     }
     if (now && now !== lastSent && changedAt && Date.now() - changedAt >= SETTLE_MS) {
       lastSent = now;
+      awaitingResult = false;
       send(now);
     }
   }, POLL_MS);

@@ -8,13 +8,13 @@
 </head>
 <body class="surface-panel">
   <main class="view view-main" id="view-main">
-    <!-- Fills exactly the visible height, which keeps the site below just out of view. -->
+    <!-- The main screen: text box, Humanize, Start, Settings. -->
     <div class="main-screen">
       <div id="typer" class="typer"></div>
     </div>
 
-    <!-- humanizeai.pro: fully loaded and working, just below the visible area.
-         Scroll down (or press "Site ↓") to reach it, e.g. to answer its cookie popup. -->
+    <!-- humanizeai.pro: loaded and running invisibly behind the panel (Chrome pauses embedded
+         pages that are off-screen, so it must stay in view). "Site" brings it to the front. -->
     <div class="site-details" id="site-details">
       <div class="site-summary">
         <span>humanizeai.pro</span>
@@ -23,7 +23,7 @@
       <div class="frame-toolbar">
         <span class="hint">Answer its cookie popup once.</span>
         <div class="frame-actions">
-          <button type="button" id="site-top" class="btn btn-ghost btn-sm">Back up ↑</button>
+          <button type="button" id="site-top" class="btn btn-secondary btn-sm">← Back</button>
           <button type="button" id="frame-reload" class="btn btn-ghost btn-sm">Reload</button>
           <button type="button" id="frame-popout" class="btn btn-ghost btn-sm">Window</button>
         </div>

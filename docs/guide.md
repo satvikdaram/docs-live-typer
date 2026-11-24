@@ -67,17 +67,17 @@ If a typo is being fixed when you press Pause or Stop, the fix finishes first, s
 1. Paste your text into the box.
 2. Press **Humanize**.
 
-The extension puts your text into [humanizeai.pro](https://www.humanizeai.pro/), which stays loaded just below the bottom of the panel, and presses the site's own *Humanize AI* button. When the result is ready it **replaces the text in the box**, and the panel stays at the top. With **Start typing after humanizing** on, typing starts right away. Otherwise check the text and press **Start** yourself.
+The extension puts your text into [humanizeai.pro](https://www.humanizeai.pro/), which keeps running invisibly behind the panel, and presses the site's own *Humanize AI* button. When the result is ready it **replaces the text in the box**, and the panel stays at the top. With **Start typing after humanizing** on, typing starts right away. Otherwise check the text and press **Start** yourself.
 
 | Control | What it does |
 |---|---|
 | **Humanize** | Rewrites the box's text with humanizeai.pro |
 | **Start typing after humanizing** | When on, typing starts as soon as the humanized text arrives |
-| **Site ↓** | Scrolls down to humanizeai.pro. **Back up ↑** returns to the top |
+| **Show site** | Brings humanizeai.pro in front of the panel. **← Back** (or Esc) hides it again |
 
-**First time:** press **Site ↓** and answer the site's cookie popup once.
+**First time:** press **Show site** and answer the site's cookie popup once.
 
-If something goes wrong, the message under the buttons says what happened. Press **Site ↓** to see what the site itself shows.
+If something goes wrong, the message under the buttons says what happened. Press **Show site** to see what the site itself shows. If the site's button is stuck, the panel reloads the site once and tries again by itself.
 
 **Window** (next to the site) opens humanizeai.pro in its own small window, for example to sign in. **Humanize** only works with the copy in the panel.
 
